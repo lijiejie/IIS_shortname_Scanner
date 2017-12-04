@@ -11,13 +11,21 @@ request these two urls:
 If the first one return HTTP 404 and the second one return no 404. Your server might be exploitable to this vulnerability.
 
 ## Change Log (Oct 27, 2016)
+
 * Bug fixed: extention short than 4 letters like ```/webdeb~1.cs``` now could be enumerated
 * Code reconstruction
+
+## Installation
+
+```sh
+ $ pip install -r requirements.txt
+```
 
 ## Usage
 
 ```
-	iis_shortname_Scan.py target
+$ chmod +x iis_shortname_Scan.py
+$ ./iis_shortname_Scan.py target
 ```
 
 
