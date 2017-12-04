@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding:utf-8
-# An IIS short_name scanner   my[at]lijiejie.com  http://www.lijiejie.com    
+# An IIS short_name scanner   my[at]lijiejie.com  http://www.lijiejie.com
 
 
 import sys
@@ -9,7 +9,7 @@ import urlparse
 import threading
 import Queue
 import time
-
+from pwn import *
 
 class Scanner():
     def __init__(self, target):
@@ -29,6 +29,7 @@ class Scanner():
         self.request_method = ''
         self.msg_queue = Queue.Queue()
         self.STOP_ME = False
+        self._p = log.progress('Scan in progress')
         threading.Thread(target=self._print).start()
 
     def _conn(self):
@@ -38,8 +39,8 @@ class Scanner():
             else:
                 conn = httplib.HTTPConnection(self.netloc)
             return conn
-        except Exception, e:
-            print '[_conn.Exception]', e
+        except httplib.HTTPException, e:
+            log.warn('[HTTPException]', e)
             return None
 
     def _get_status(self, path):
@@ -49,7 +50,7 @@ class Scanner():
             status = conn.getresponse().status
             conn.close()
             return status
-        except Exception, e:
+        except httplib.HTTPException, e:
             raise Exception('[_get_status.Exception] %s' % str(e) )
 
     def is_vul(self):
@@ -61,7 +62,7 @@ class Scanner():
                 if status_1 == 404 and status_2 != 404:
                     return True
             return  False
-        except Exception, e:
+        except httplib.HTTPException, e:
             raise Exception('[is_vul.Exception] %s' % str(e) )
 
     def run(self):
@@ -76,21 +77,21 @@ class Scanner():
         self.STOP_ME = True
 
     def report(self):
-        print '-'* 64
+        log.info('-'* 64)
         for d in self.dirs:
-            print 'Dir:  %s' % d
+            log.info('Dir:  %s' % d)
         for f in self.files:
-            print 'File: %s' % f
-        print '-'*64
-        print '%d Directories, %d Files found in total' % (len(self.dirs), len(self.files))
-        print 'Note that * is a wildcard, matches any character zero or more times.'
+            log.info('File: %s' % f)
+        log.info('-'*64)
+        log.info('%d Directories, %d Files found in total' % (len(self.dirs), len(self.files)))
+        log.info('Note that * is a wildcard, matches any character zero or more times.')
 
     def _print(self):
         while not self.STOP_ME or (not self.msg_queue.empty()):
             if self.msg_queue.empty():
                 time.sleep(0.05)
             else:
-                print self.msg_queue.get()
+                self._p.status(self.msg_queue.get())
 
     def _scan_worker(self):
         while True:
@@ -123,22 +124,24 @@ class Scanner():
 
             except Queue.Empty,e:
                 break
-            except Exception, e:
-                print '[Exception]', e
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print 'Usage: python IIS_shortname_Scan.py http://www.target.com/'
+        log.info('Usage: python IIS_shortname_Scan.py http://www.target.com/')
         sys.exit()
 
     target = sys.argv[1]
     s = Scanner(target)
     if not s.is_vul():
         s.STOP_ME = True
-        print 'Server is not vulnerable'
+        log.warn('Server is not vulnerable')
         sys.exit(0)
 
-    print 'Server is vulnerable, please wait, scanning...'
-    s.run()
-    s.report()
+    log.info('Server is vulnerable, please wait, scanning...')
+    try:
+        s.run()
+        s.report()
+    except KeyboardInterrupt:
+        log.warn('Interrupted !')
+        exit
