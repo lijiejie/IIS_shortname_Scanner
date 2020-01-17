@@ -98,7 +98,7 @@ class Scanner():
                 url, ext = self.queue.get(timeout=1.0)
                 status = self._get_status(url + '*~1' + ext + '/1.aspx')
                 if status == 404:
-                    self.msg_queue.put('[+] %s~1%s\t[scan in progress]' % (url, ext))
+                    self.msg_queue.put('\033[92m[+]\033[00m %s~1%s\t\033[93m[scan in progress]\033[00m' % (url, ext))
 
                     if len(url) - len(self.path)< 6:    # enum first 6 chars only
                         for c in self.alphanum:
@@ -109,11 +109,11 @@ class Scanner():
 
                         if ext == '':
                             self.dirs.append(url + '~1')
-                            self.msg_queue.put('[+] Directory ' +  url + '~1\t[Done]')
+                            self.msg_queue.put('\033[92m[+]\033[00m Directory ' +  url + '~1\t\033[92m[Done]\033[00m')
 
                         elif len(ext) == 5 or (not ext.endswith('*')):    # .asp*
                             self.files.append(url + '~1' + ext)
-                            self.msg_queue.put('[+] File ' + url + '~1' + ext + '\t[Done]')
+                            self.msg_queue.put('\033[92m[+]\033[00m File ' + url + '~1' + ext + '\t\033[92m[Done]\033[00m')
 
                         else:
                             for c in 'abcdefghijklmnopqrstuvwxyz0123456789':
