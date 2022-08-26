@@ -1,6 +1,6 @@
 # IIS shortname Scanner #
 
-Under certern circumstances, windows 8.3 short names may be bruteforce enumerated under IIS with .net enabled,
+Under certain circumstances, windows 8.3 short names may be bruteforce enumerated under IIS with .net enabled,
 
 request these two urls:
 
