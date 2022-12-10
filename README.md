@@ -17,7 +17,7 @@ If the first one return HTTP 404 and the second one return no 404. Your server m
 ## Usage
 
 ```
-	iis_shortname_Scan.py target
+python iis_shortname_Scan.py target
 ```
 
 
